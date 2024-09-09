@@ -1,0 +1,48 @@
+from numpy import *
+import matplotlib.pyplot as plt
+
+import matplotlib
+matplotlib.rcParams['figure.figsize'] = (4.0, 4.0)
+
+#Активационная функция (сигмоида)
+def activation(X, W):
+    return 1 / (1 + exp(-summator(W, X)))
+
+plt.plot(activation(X, W))
+plt.title('Функция активации нейрона');
+plt.show()
+
+#Сумматорная функция
+def summator(W, X):
+    return dot(W, X.T)
+
+#Целевая функция 1/(2*n)*(y_hat-y)^2 - среднее значение
+def target_func(X, W, y):
+    return 0.5 * mean((activation(X, W) - y)**2)
+
+#Производная активационной функции
+def activ_derivative(X, W):
+    return activation(X, W) * (1 - activation(X, W))
+
+#Производная целевой функции
+def target_derivative(X, y, W):
+    return ((activation(X, W) - y) * activ_derivative(X, W)).dot(X)/len(y)
+
+#Обучение
+def learning(X, W, rate, y, max_steps, eps):
+    for i in range(max_steps):
+        nabla = target_derivative(X, y, W) #Градиент
+        old_J = target_func(X, W, y) #Текущее значение функции
+        W -= rate * nabla #Обновляем веса
+        new_J = target_func(X, W, y) #Новое значение функции
+        if abs(old_J - new_J) < eps: #Если достигли заданной точности
+            return 1
+    return 0 
+
+X = array([[1, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0]]) #Входные данные
+Y = array([1, 0, 1, 1]) #Правильные ответы
+W = array([0.0, 0.0, 0.0]) #Веса
+learning(X, W, 0.3, Y, 200, 1e-10) #Процесс обучения
+print(activation(array([0, 0, 0]), W) > 0.5)
+print(activation(array([1, 1,1]), W) > 0.5)
+print(activation(array([1, 0, 1]), W) > 0.5)
